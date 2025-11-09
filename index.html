@@ -4,14 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cancer Awareness & Support</title>
+  <!-- Use Poppins font for a cleaner, modern UI -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Status banner (hidden by default). Used to show offline/fallback notices. -->
+  <div id="status-banner" class="status-banner" role="status" aria-live="polite"></div>
   <header>
     <h1>Cancer Awareness & Support</h1>
   </header>
 
-  <section class="banner">
+  <main class="container">
+    <section class="banner">
     <h2>Together we fight, together we heal 💪</h2>
   </section>
 
@@ -33,6 +38,7 @@
       <p class="quote-author" id="author"></p>
     </div>
   </section>
+  </main>
 
   <script src="script.js"></script>
 </body>

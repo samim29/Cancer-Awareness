@@ -18,13 +18,53 @@ document.getElementById("contact-form").addEventListener("submit", function (e) 
 
 // ===== Random Quote Fetching =====
 async function fetchQuote() {
+  const quoteEl = document.getElementById("quote");
+  const authorEl = document.getElementById("author");
+  const statusBanner = document.getElementById("status-banner");
+
+  // Local fallback quotes
+  const localQuotes = [
+    { content: "The best way to predict the future is to create it.", author: "Peter Drucker" },
+    { content: "Keep your face to the sunshine and you cannot see a shadow.", author: "Helen Keller" },
+    { content: "Act as if what you do makes a difference. It does.", author: "William James" },
+    { content: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+    { content: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky" }
+  ];
+
+  function render(q) {
+    quoteEl.textContent = `"${q.content}"`;
+    authorEl.textContent = q.author ? `— ${q.author}` : "— Unknown";
+  }
+
+  // hide banner at start of fetch
+  if (statusBanner) statusBanner.classList.remove('visible');
+
   try {
-    const response = await fetch("https://api.quotable.io/random");
-    const data = await response.json();
-    document.getElementById("quote").textContent = `"${data.content}"`;
-    document.getElementById("author").textContent = `— ${data.author}`;
-  } catch (error) {
-    document.getElementById("quote").textContent = "Failed to load quotes.";
+    const res = await fetch("https://api.quotable.io/random");
+    if (!res.ok) throw new Error(`Primary API error: ${res.status}`);
+    const data = await res.json();
+    render({ content: data.content, author: data.author });
+    if (statusBanner) statusBanner.classList.remove('visible');
+    return;
+  } catch (errPrimary) {
+    try {
+      const res2 = await fetch("https://type.fit/api/quotes");
+      if (!res2.ok) throw new Error(`Secondary API error: ${res2.status}`);
+      const arr = await res2.json();
+      const pick = arr[Math.floor(Math.random() * arr.length)];
+      render({ content: pick.text || pick.content, author: pick.author });
+      if (statusBanner) statusBanner.classList.remove('visible');
+      return;
+    } catch (errSecondary) {
+      const pick = localQuotes[Math.floor(Math.random() * localQuotes.length)];
+      render(pick);
+      console.warn("Quote APIs failed, using local fallback.", errPrimary, errSecondary);
+      if (statusBanner) {
+        statusBanner.textContent = 'Offline — showing local quotes';
+        statusBanner.classList.add('visible');
+        setTimeout(() => statusBanner.classList.remove('visible'), 6000);
+      }
+    }
   }
 }
 
