@@ -38,27 +38,21 @@ async function fetchQuote() {
   // start fresh for this fetch attempt
 
   try {
-    const res = await fetch("https://api.quotable.io/random");
+    const res = await fetch("https://api.kanye.rest/");
     if (!res.ok) throw new Error(`Primary API error: ${res.status}`);
     const data = await res.json();
-    render({ content: data.content, author: data.author });
+    render({ content: data.quote, author: "Kanye West" });
     return;
   } catch (errPrimary) {
-    try {
-      const res2 = await fetch("https://type.fit/api/quotes");
-      if (!res2.ok) throw new Error(`Secondary API error: ${res2.status}`);
-      const arr = await res2.json();
-      const pick = arr[Math.floor(Math.random() * arr.length)];
-      render({ content: pick.text || pick.content, author: pick.author });
-      return;
-    } catch (errSecondary) {
+
+
       const pick = localQuotes[Math.floor(Math.random() * localQuotes.length)];
       render(pick);
       // Only log the fallback to console; no on-page banner
       console.warn("Quote APIs failed, using local fallback.", errPrimary, errSecondary);
     }
   }
-}
+
 
 // Fetch new quote every 10 seconds
 fetchQuote();
