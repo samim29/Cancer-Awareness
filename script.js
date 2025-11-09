@@ -20,7 +20,6 @@ document.getElementById("contact-form").addEventListener("submit", function (e) 
 async function fetchQuote() {
   const quoteEl = document.getElementById("quote");
   const authorEl = document.getElementById("author");
-  const statusBanner = document.getElementById("status-banner");
 
   // Local fallback quotes
   const localQuotes = [
@@ -36,15 +35,13 @@ async function fetchQuote() {
     authorEl.textContent = q.author ? `— ${q.author}` : "— Unknown";
   }
 
-  // hide banner at start of fetch
-  if (statusBanner) statusBanner.classList.remove('visible');
+  // start fresh for this fetch attempt
 
   try {
     const res = await fetch("https://api.quotable.io/random");
     if (!res.ok) throw new Error(`Primary API error: ${res.status}`);
     const data = await res.json();
     render({ content: data.content, author: data.author });
-    if (statusBanner) statusBanner.classList.remove('visible');
     return;
   } catch (errPrimary) {
     try {
@@ -53,17 +50,12 @@ async function fetchQuote() {
       const arr = await res2.json();
       const pick = arr[Math.floor(Math.random() * arr.length)];
       render({ content: pick.text || pick.content, author: pick.author });
-      if (statusBanner) statusBanner.classList.remove('visible');
       return;
     } catch (errSecondary) {
       const pick = localQuotes[Math.floor(Math.random() * localQuotes.length)];
       render(pick);
+      // Only log the fallback to console; no on-page banner
       console.warn("Quote APIs failed, using local fallback.", errPrimary, errSecondary);
-      if (statusBanner) {
-        statusBanner.textContent = 'Offline — showing local quotes';
-        statusBanner.classList.add('visible');
-        setTimeout(() => statusBanner.classList.remove('visible'), 6000);
-      }
     }
   }
 }
